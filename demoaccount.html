@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+    <title>5thdimension · Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #f8fcff;
+            color: #0b2b3f;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            width: 100%;
+        }
+
+        /* ----- HEADER (exactly from dimension.html, adapted) ----- */
+        header {
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 20, 30, 0.05);
+            padding: 0.75rem 0;
+            border-bottom: 2px solid #7ec8e3;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+        }
+
+        :root {
+            --sky: #7ec8e3;
+            --sky-light: #d4edf7;
+            --sky-pale: #eef8fc;
+            --white: #ffffff;
+            --black: #0b0b0b;
+        }
+
+        .nav-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.6rem 1.6rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #0b2b3f;
+        }
+        .logo img {
+            height: 44px;
+            width: auto;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.2rem 1.8rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #1e4a5f;
+            transition: 0.15s;
+            padding: 0.2rem 0;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+        }
+        .nav-links a:hover {
+            color: #0a7b9e;
+            border-bottom-color: #7ec8e3;
+        }
+        .nav-links .btn-outline {
+            background: transparent;
+            border: 1.5px solid #7ec8e3;
+            padding: 0.4rem 1.6rem;
+            border-radius: 40px;
+            color: #7ec8e3;
+            font-weight: 600;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .nav-links .btn-outline:hover {
+            background: #7ec8e3;
+            color: white;
+            border-color: #7ec8e3;
+        }
+        .nav-links .btn-logout {
+            background: #e74c3c;
+            border: none;
+            padding: 0.4rem 1.6rem;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .nav-links .btn-logout:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        /* ----- dashboard specific styles ----- */
+        .segment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem 2.2rem;
+            box-shadow: 0 4px 20px rgba(0, 40, 60, 0.03);
+            border: 1px solid rgba(126, 200, 227, 0.06);
+            transition: 0.15s;
+            position: relative;
+        }
+        .card:hover {
+            border-color: rgba(126, 200, 227, 0.15);
+        }
+
+        .card-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6f96aa;
+            font-weight: 600;
+        }
+
+        .balance-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 1.5rem 3rem;
+            margin-top: 0.5rem;
+        }
+        .balance-item .label {
+            font-size: 0.8rem;
+            color: #6f96aa;
+        }
+        .balance-item .amount {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0b2b3f;
+        }
+        .balance-item .amount i {
+            color: #7ec8e3;
+            margin-right: 6px;
+        }
+
+        .btn-primary {
+            background: #0b0b0b;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            color: white;
+            font-size: 0.95rem;
+            transition: 0.15s;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(11, 11, 11, 0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .btn-primary:hover {
+            background: #1f4355;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #eef5f9;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            color: #1e4a5f;
+            font-size: 0.95rem;
+            transition: 0.15s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .btn-secondary:hover {
+            background: #dce8f0;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            color: white;
+            font-size: 0.95rem;
+            transition: 0.15s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-deposit {
+            background: #7ec8e3;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            color: #0b0b0b;
+            font-size: 0.95rem;
+            transition: 0.15s;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(126, 200, 227, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .btn-deposit:hover {
+            background: #5eb3d1;
+            transform: translateY(-2px);
+        }
+
+        .btn-withdraw {
+            background: #f39c12;
+            border: none;
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            font-weight: 700;
+            color: #0b0b0b;
+            font-size: 0.95rem;
+            transition: 0.15s;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(243, 156, 18, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .btn-withdraw:hover {
+            background: #d68910;
+            transform: translateY(-2px);
+        }
+
+        .transfer-group {
+            background: #f6fcff;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid rgba(126, 200, 227, 0.04);
+        }
+        .transfer-group .group-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #0b2b3f;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .transfer-group .group-label i {
+            color: #7ec8e3;
+        }
+
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            align-items: center;
+            margin: 0.6rem 0;
+        }
+        .input-row input,
+        .input-row select {
+            flex: 1;
+            min-width: 160px;
+            padding: 0.6rem 1rem;
+            border: 1px solid #d6e9f5;
+            border-radius: 40px;
+            background: white;
+            font-size: 0.95rem;
+            transition: 0.15s;
+        }
+        .input-row input:focus,
+        .input-row select:focus {
+            border-color: #7ec8e3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(126, 200, 227, 0.08);
+        }
+
+        .bank-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem 1rem;
+            margin: 0.6rem 0 0.8rem;
+        }
+        .bank-form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+        .bank-form-grid label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1e4a5f;
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+        .bank-form-grid input,
+        .bank-form-grid select {
+            width: 100%;
+            padding: 0.5rem 0.9rem;
+            border: 1px solid #d6e9f5;
+            border-radius: 40px;
+            background: white;
+            font-size: 0.9rem;
+            transition: 0.15s;
+        }
+        .bank-form-grid input:focus,
+        .bank-form-grid select:focus {
+            border-color: #7ec8e3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(126, 200, 227, 0.08);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0b2b3f;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .section-title i {
+            color: #7ec8e3;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin: 0.8rem 0 0.2rem;
+        }
+        .summary-item {
+            background: #f6fcff;
+            border-radius: 1.5rem;
+            padding: 1.2rem 1.2rem;
+            border: 1px solid rgba(126, 200, 227, 0.04);
+        }
+        .summary-item .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #6f96aa;
+            font-weight: 600;
+        }
+        .summary-item .number {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #0b2b3f;
+            margin-top: 0.2rem;
+        }
+        .summary-item .number small {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #6f96aa;
+            margin-left: 0.5rem;
+        }
+        .summary-item .number .profit-badge {
+            background: #2ecc71;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.6rem;
+            border-radius: 40px;
+            margin-left: 0.6rem;
+            display: inline-block;
+        }
+        .profit-badge-30d {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: #0b0b0b;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0.15rem 0.8rem;
+            border-radius: 40px;
+            margin-left: 0.6rem;
+            display: inline-block;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.25);
+        }
+        .profit-badge-30d i {
+            margin-right: 4px;
+            font-size: 0.6rem;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: #0b0b0b;
+            color: #ddd;
+            padding: 3.5rem 1rem 2.5rem;
+            margin-top: 1rem;
+            border-top: 6px solid #7ec8e3;
+        }
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.5rem 3rem;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        .footer-col {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .footer-col h4 {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+        .footer-col a {
+            color: #b0cbd6;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: 0.15s;
+            cursor: pointer;
+        }
+        .footer-col a:hover {
+            color: #7ec8e3;
+        }
+        .footer-brand {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .footer-brand img {
+            height: 40px;
+            width: auto;
+            border-radius: 8px;
+        }
+        .footer-brand span {
+            color: #7ec8e3;
+        }
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            margin-top: 1.8rem;
+            padding-top: 1.2rem;
+            font-size: 0.8rem;
+            color: #8aaebb;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+        .footer-bottom a {
+            color: #8aaebb;
+            text-decoration: none;
+        }
+        .footer-bottom a:hover {
+            color: #7ec8e3;
+        }
+
+        .passport-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #f6fcff;
+            border-radius: 2rem;
+            padding: 0.6rem 1.2rem 0.6rem 0.6rem;
+            border: 1px solid rgba(126, 200, 227, 0.08);
+            margin-left: auto;
+        }
+        .passport-img {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #7ec8e3;
+            background: #fff;
+            display: block;
+            box-shadow: 0 2px 8px rgba(126, 200, 227, 0.15);
+        }
+        .passport-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #0b2b3f;
+        }
+        .passport-id {
+            font-size: 0.7rem;
+            color: #6f96aa;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0 1rem;
+        }
+        .chart-box {
+            background: white;
+            border-radius: 2rem;
+            padding: 1.5rem 1.2rem 1.2rem;
+            border: 1px solid rgba(126, 200, 227, 0.06);
+            box-shadow: 0 4px 20px rgba(0, 40, 60, 0.02);
+        }
+        .chart-box h4 {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1e4a5f;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .chart-box h4 i {
+            color: #7ec8e3;
+        }
+        .chart-container {
+            position: relative;
+            height: 200px;
+            max-width: 100%;
+        }
+
+        .deposit-section {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin: 0.5rem 0 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            max-width: 460px;
+            width: 90%;
+            border-radius: 2.5rem;
+            padding: 2rem 2rem 1.8rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+            position: relative;
+            animation: modalFade 0.25s ease;
+        }
+        @keyframes modalFade {
+            0% { opacity: 0; transform: scale(0.96) translateY(12px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-box .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.4rem;
+            font-size: 1.6rem;
+            line-height: 1;
+            color: #6f96aa;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: 0.1s;
+            padding: 0 0.2rem;
+        }
+        .modal-box .modal-close:hover {
+            color: #0b2b3f;
+            transform: scale(1.05);
+        }
+        .modal-box .modal-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            color: #0b2b3f;
+        }
+        .modal-box .modal-title i {
+            color: #7ec8e3;
+            margin-right: 0.3rem;
+        }
+        .modal-box .modal-sub {
+            color: #4a6f82;
+            font-size: 0.9rem;
+            margin-bottom: 1.4rem;
+            border-bottom: 1px solid #eef5f9;
+            padding-bottom: 0.8rem;
+        }
+        .modal-box .input-group {
+            margin: 1rem 0 1.2rem;
+        }
+        .modal-box .input-group label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #1e4a5f;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        .modal-box .input-group input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1px solid #d6e9f5;
+            border-radius: 60px;
+            font-size: 0.95rem;
+            transition: 0.15s;
+            background: #fafdff;
+        }
+        .modal-box .input-group input:focus {
+            border-color: #7ec8e3;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(126, 200, 227, 0.08);
+        }
+        .modal-box .modal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 0.8rem;
+            margin-top: 1.4rem;
+        }
+        .modal-box .btn-modal {
+            padding: 0.6rem 1.6rem;
+            border-radius: 60px;
+            font-weight: 600;
+            border: none;
+            background: #eef5f9;
+            color: #1e4a5f;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .modal-box .btn-modal:hover {
+            background: #dce8f0;
+        }
+        .modal-box .btn-modal-primary {
+            background: #0b0b0b;
+            color: white;
+            box-shadow: 0 4px 12px rgba(11, 11, 11, 0.2);
+        }
+        .modal-box .btn-modal-primary:hover {
+            background: #1f4355;
+        }
+        .modal-box .btn-modal-green {
+            background: #2ecc71;
+            color: white;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+        .modal-box .btn-modal-green:hover {
+            background: #27ae60;
+        }
+        .modal-box .btn-modal-orange {
+            background: #f39c12;
+            color: white;
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+        }
+        .modal-box .btn-modal-orange:hover {
+            background: #d68910;
+        }
+        .modal-box .fee-wallet-box {
+            background: #f6fcff;
+            border-radius: 1.2rem;
+            padding: 0.8rem 1rem;
+            margin: 0.6rem 0;
+            border: 1px solid rgba(126, 200, 227, 0.08);
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        .modal-box .fee-wallet-box .label {
+            font-weight: 600;
+            color: #1e4a5f;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .modal-box .fee-wallet-box .address {
+            font-weight: 600;
+            color: #0b2b3f;
+            background: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 0.2rem;
+            border: 1px solid #d6e9f5;
+            font-size: 0.8rem;
+        }
+        .modal-box .fee-note {
+            font-size: 0.8rem;
+            color: #6f96aa;
+            margin-top: 0.5rem;
+            border-top: 1px solid #eef5f9;
+            padding-top: 0.6rem;
+        }
+        .modal-box .fee-note i {
+            color: #7ec8e3;
+        }
+        .security-box {
+            background: #fef6f0;
+            border-radius: 1.5rem;
+            padding: 1.2rem 1.4rem;
+            margin: 0.8rem 0 1rem;
+            border-left: 4px solid #7ec8e3;
+        }
+        .security-box p {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            color: #1e3a4a;
+        }
+        .security-box strong {
+            color: #c0392b;
+        }
+        .success-msg {
+            background: #f0faf5;
+            border-radius: 1.5rem;
+            padding: 0.8rem 1.2rem;
+            margin: 1rem 0 0.2rem;
+            color: #0b2b3f;
+            font-weight: 500;
+            border-left: 4px solid #2ecc71;
+        }
+        .success-msg i {
+            color: #2ecc71;
+            margin-right: 0.4rem;
+        }
+
+        /* Thank you popup specific */
+        .thankyou-popup .modal-title {
+            color: #0b2b3f;
+        }
+        .thankyou-popup .modal-title i {
+            color: #2ecc71;
+        }
+
+        .error-msg {
+            color: #e74c3c;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .error-msg i {
+            font-size: 0.9rem;
+        }
+        .input-group.has-error input {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .warning-banner {
+            background: #fef6e6;
+            border-left: 4px solid #f39c12;
+            border-radius: 1rem;
+            padding: 0.6rem 1rem;
+            margin: 0.8rem 0 0.2rem;
+            font-size: 0.85rem;
+            color: #7d5d0e;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .warning-banner i {
+            color: #f39c12;
+            font-size: 1.1rem;
+            margin-top: 0.1rem;
+        }
+
+        @media (max-width: 992px) {
+            .segment-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .bank-form-grid { grid-template-columns: 1fr; }
+            .bank-form-grid .full-width { grid-column: 1; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .chart-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+        }
+        @media (max-width: 768px) {
+            .container { padding: 0 1.2rem; }
+            .nav-wrapper { flex-direction: column; align-items: stretch; gap: 0.6rem; }
+            .logo { justify-content: center; font-size: 1.5rem; }
+            .nav-links { justify-content: center; gap: 0.6rem 1rem; font-size: 0.8rem; }
+            .nav-links .btn-outline, .nav-links .btn-logout { padding: 0.3rem 1rem; font-size: 0.75rem; }
+            .card { padding: 1.5rem; }
+            .balance-item .amount { font-size: 1.6rem; }
+            .section-title { font-size: 1.4rem; }
+            .transfer-group { padding: 1rem; }
+            .input-row { flex-direction: column; align-items: stretch; }
+            .input-row input { min-width: unset; }
+            .bank-form-grid { gap: 0.4rem 0.8rem; }
+            .bank-form-grid input, .bank-form-grid select { font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+            .summary-item .number { font-size: 1.6rem; }
+            .passport-wrapper { margin-left: 0; width: 100%; justify-content: flex-start; }
+            .footer-content { padding: 0 1.2rem; flex-direction: column; gap: 1.2rem; }
+            .footer-bottom { padding-left: 1.2rem; padding-right: 1.2rem; flex-direction: column; text-align: center; }
+            .deposit-section { justify-content: center; }
+        }
+        @media (max-width: 480px) {
+            .container { padding: 0 0.8rem; }
+            .balance-row { flex-direction: column; gap: 0.8rem; }
+            .card { padding: 1.2rem; }
+            .balance-item .amount { font-size: 1.4rem; }
+            .btn-primary, .btn-secondary, .btn-danger, .btn-deposit, .btn-withdraw { padding: 0.5rem 1.4rem; font-size: 0.85rem; }
+            .footer-content { flex-direction: column; gap: 1.2rem; }
+            .footer-col { min-width: 100%; }
+            .summary-item .number { font-size: 1.3rem; }
+            .modal-box { padding: 1.5rem 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="container nav-wrapper">
+            <div class="logo">
+                <img src="https://i.imgur.com/0J4fSqV.jpeg" alt="5thdimension logo">
+            </div>
+            <div class="nav-links">
+                <a href="index.html" id="homeLink">Home</a>
+                <a href="#dashboard" style="border-bottom-color:#7ec8e3; color:#0a7b9e;">Dashboard</a>
+                <a href="index.html#contact" id="supportLink">Support</a>
+                <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN DASHBOARD ===== -->
+    <main>
+        <div class="container">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.8rem; margin:1.8rem 0 0.5rem;">
+                <div class="section-title">
+                    <i class="fas fa-user-circle"></i> Welcome, Demo
+                </div>
+                <div class="passport-wrapper">
+                    <img class="passport-img" src="https://i.imgur.com/0J4fSqV.jpeg" alt="5thdimension logo" />
+                    <div>
+                        <div class="passport-name">Account Demo</div>
+                        <div class="passport-id"><i class="fas fa-id-card"></i> #9854084707</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deposit & Withdraw Buttons -->
+            <div class="deposit-section">
+                <button class="btn-deposit" id="depositBtn"><i class="fas fa-plus-circle"></i> Deposit Funds</button>
+                <button class="btn-withdraw" id="withdrawBtn"><i class="fas fa-minus-circle"></i> Withdraw Funds</button>
+            </div>
+
+            <div class="segment-grid">
+                <!-- CARD 1: Account Balance -->
+                <div class="card">
+                    <div class="card-label"><i class="fas fa-wallet" style="color:#7ec8e3;"></i> Account Balance</div>
+                    <div class="balance-row">
+                        <div class="balance-item">
+                            <div class="label">USD</div>
+                            <div class="amount"><i class="fas fa-dollar-sign"></i> 5,700,000.00</div>
+                        </div>
+                        <div class="balance-item">
+                            <div class="label">Bitcoin (BTC)</div>
+                            <div class="amount"><i class="fab fa-bitcoin"></i>83.21 BTC</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:1rem; display:flex; flex-wrap:wrap; gap:0.8rem;">
+                        <span style="background:#f0f9ff; padding:0.2rem 1.2rem; border-radius:40px; font-size:0.8rem; border:1px solid rgba(126,200,227,0.1);">
+                            <i class="fas fa-id-card" style="color:#7ec8e3;"></i> Acc: 9854084707
+                        </span>
+                        <span style="background:#f0f9ff; padding:0.2rem 1.2rem; border-radius:40px; font-size:0.8rem; border:1px solid rgba(126,200,227,0.1);">
+                            <i class="fas fa-calendar-check" style="color:#7ec8e3;"></i> Created: 2023-07-22
+                        </span>
+                    </div>
+                </div>
+
+                <!-- CARD 2: Crypto Transfer -->
+                <div class="card">
+                    <div class="card-label"><i class="fab fa-bitcoin" style="color:#7ec8e3;"></i> Crypto Transfer</div>
+                    <div class="transfer-group" style="margin-bottom:0;">
+                        <div class="group-label"><i class="fab fa-bitcoin"></i> Send BTC / ETH</div>
+                        <div class="input-row">
+                            <input type="text" id="cryptoAddressInput" placeholder="Enter recipient wallet address" />
+                            <button class="btn-primary" id="cryptoSendBtn" style="padding:0.6rem 1.6rem; font-size:0.85rem;">
+                                <i class="fas fa-arrow-right"></i> Send
+                            </button>
+                        </div>
+                        <div style="font-size:0.75rem; color:#6f96aa; margin-top:0.3rem;">
+                            <i class="fas fa-info-circle"></i> Enter the recipient's wallet address above
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 3: Bank Transfer -->
+                <div class="card">
+                    <div class="card-label"><i class="fas fa-university" style="color:#7ec8e3;"></i> Bank Transfer</div>
+                    <div class="transfer-group" style="margin-bottom:0;">
+                        <div class="group-label"><i class="fas fa-globe"></i> International Wire</div>
+                        <div class="bank-form-grid">
+                            <div class="full-width">
+                                <label>Recipient Full Name</label>
+                                <input type="text" id="bankRecipientName" placeholder="e.g. John Doe" />
+                            </div>
+                            <div>
+                                <label>Bank Name</label>
+                                <input type="text" id="bankName" placeholder="e.g. Barclays, Deutsche Bank" />
+                            </div>
+                            <div>
+                                <label>Account Number / IBAN</label>
+                                <input type="text" id="bankAccountNumber" placeholder="e.g. 1234567890 or IBAN" />
+                            </div>
+                            <div>
+                                <label>Sort Code / Routing</label>
+                                <input type="text" id="bankRouting" placeholder="e.g. 12-34-56 or 021000021" />
+                            </div>
+                            <div>
+                                <label>SWIFT / BIC</label>
+                                <input type="text" id="bankSwift" placeholder="e.g. BARCGB22" />
+                            </div>
+                            <div class="full-width" style="display:flex; justify-content:flex-end; margin-top:0.2rem;">
+                                <button class="btn-primary" id="bankSendBtn" style="padding:0.6rem 2rem; font-size:0.85rem;">
+                                    <i class="fas fa-arrow-right"></i> Send Money
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 4: Amount Deposited & Profit Earned -->
+                <div class="card">
+                    <div class="card-label"><i class="fas fa-chart-line" style="color:#7ec8e3;"></i> Portfolio summary</div>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="label"><i class="fas fa-arrow-down" style="color:#2ecc71; margin-right:4px;"></i> Amount Deposited</div>
+                            <div class="number">USD 3,135,000.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="label"><i class="fas fa-arrow-up" style="color:#7ec8e3; margin-right:4px;"></i> Profit Earned</div>
+                            <div class="number">USD 2,565,000.00 
+                                <span class="profit-badge-30d"><i class="fas fa-calendar-alt"></i> 45% · 30days</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chartSection" style="display: block;">
+                <div class="chart-grid">
+                    <div class="chart-box">
+                        <h4><i class="fas fa-chart-pie"></i> Asset Allocation (Pie)</h4>
+                        <div class="chart-container">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <h4><i class="fas fa-chart-bar"></i> Monthly Transactions (Histogram)</h4>
+                        <div class="chart-container">
+                            <canvas id="histogramChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <div class="footer-brand">
+                    <img src="https://i.imgur.com/0J4fSqV.jpeg" alt="5thdimension logo">
+                    <span>5thdimension</span>
+                </div>
+                <p style="font-size:0.85rem; color:#b0cbd6; max-width:200px;">diversified investment · real estate · crypto · oil & gas · agriculture · precious stones</p>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a>About</a>
+                <a>Careers</a>
+                <a>Press</a>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <a>Help Center</a>
+                <a>Security</a>
+                <a>Privacy</a>
+            </div>
+            <div class="footer-col">
+                <h4>Products</h4>
+                <a>5thdimension Pro</a>
+                <a>Elite</a>
+                <a>API</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2022-2026 5thdimension · All rights reserved.</span>
+            <span><a>Privacy Policy</a> · <a>Terms</a></span>
+        </div>
+    </footer>
+
+    <!-- ===== MODAL (main) ===== -->
+    <div class="modal-overlay" id="transactionModal">
+        <div class="modal-box" id="modalBox">
+            <button class="modal-close" id="modalCloseX"><i class="fas fa-times"></i></button>
+            <div id="modalContent">
+                <!-- dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== THANK YOU POPUP (separate overlay) ===== -->
+    <div class="modal-overlay" id="thankyouModal">
+        <div class="modal-box thankyou-popup" id="thankyouBox">
+            <button class="modal-close" id="thankyouCloseX"><i class="fas fa-times"></i></button>
+            <div id="thankyouContent">
+                <div class="modal-title"><i class="fas fa-check-circle" style="color:#2ecc71;"></i> Thank You</div>
+                <div style="margin: 1rem 0 1.2rem; font-size:1rem; line-height:1.7; color:#1e4a5f;">
+                    <p></p>
+                    <p>Your request will be processed and the fund will be wired to your provided account details in 1 or 2 business days.</p>
+                </div>
+                <div class="modal-actions" style="justify-content:center; gap:1rem;">
+                    <button class="btn-modal" id="thankyouCancelBtn"><i class="fas fa-times"></i> Cancel</button>
+                    <button class="btn-modal btn-modal-primary" id="thankyouOkBtn"><i class="fas fa-check"></i> OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- LOGOUT ----------
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+
+            // ---------- DEPOSIT / WITHDRAW ----------
+            document.getElementById('depositBtn').addEventListener('click', function() {
+                showDepositScreen();
+            });
+            document.getElementById('withdrawBtn').addEventListener('click', function() {
+                showWithdrawScreen();
+            });
+
+            function showDepositScreen() {
+                modalContent.innerHTML = `
+                    <div class="modal-title"><i class="fas fa-plus-circle" style="color:#7ec8e3;"></i> Deposit Funds</div>
+                    <div class="modal-sub">Fund your account using the wallet address below.</div>
+                    <div class="fee-wallet-box">
+                        <div class="label"><i class="fab fa-bitcoin" style="color:#7ec8e3;"></i> Bitcoin Deposit Wallet</div>
+                        <div class="address">bc1qdepositwalletaddressxxxxxxxxxxxxxxxxxx</div>
+                    </div>
+                    <div style="font-size:0.9rem; color:#1e4a5f; line-height:1.6; margin:0.2rem 0 0.2rem;">
+                        <p>Send BTC to the address above. Your account will be credited after 3 confirmations.</p>
+                    </div>
+                    <div class="warning-banner">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span><strong>Important:</strong> 5thdimension is not liable for any loss due to incorrect address entry or network errors. Please double‑check the address before sending.</span>
+                    </div>
+                    <div class="fee-note">
+                        <i class="fas fa-clock"></i> Deposits are processed within 5-10 minutes.
+                    </div>
+                    <div class="modal-actions" style="justify-content:center; gap:1.2rem; margin-top:1.6rem;">
+                        <button class="btn-modal btn-modal-primary" id="closeDepositBtn"><i class="fas fa-check"></i> Got it</button>
+                    </div>
+                `;
+                modalOverlay.classList.add('show');
+                document.getElementById('closeDepositBtn').addEventListener('click', function() {
+                    modalOverlay.classList.remove('show');
+                });
+            }
+
+            function showWithdrawScreen() {
+                modalContent.innerHTML = `
+                    <div class="modal-title"><i class="fas fa-minus-circle" style="color:#f39c12;"></i> Withdraw Funds</div>
+                    <div class="modal-sub">Choose your withdrawal method below.</div>
+                    <div style="display:flex; flex-direction:column; gap:0.8rem; margin:0.8rem 0;">
+                        <button class="btn-modal btn-modal-primary" id="withdrawBankBtn" style="width:100%; justify-content:center; padding:0.8rem;">
+                            <i class="fas fa-university"></i> Bank Transfer
+                        </button>
+                        <button class="btn-modal btn-modal-primary" id="withdrawCryptoBtn" style="width:100%; justify-content:center; padding:0.8rem; background:#f39c12; box-shadow:0 4px 12px rgba(243,156,18,0.3);">
+                            <i class="fab fa-bitcoin"></i> Bitcoin
+                        </button>
+                    </div>
+                    <div class="modal-actions" style="justify-content:center; gap:1.2rem; margin-top:0.6rem;">
+                        <button class="btn-modal" id="cancelWithdrawBtn"><i class="fas fa-times"></i> Cancel</button>
+                    </div>
+                `;
+                modalOverlay.classList.add('show');
+
+                document.getElementById('withdrawBankBtn').addEventListener('click', function() {
+                    modalOverlay.classList.remove('show');
+                    document.querySelector('.card .bank-form-grid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    document.getElementById('bankRecipientName').focus();
+                });
+                document.getElementById('withdrawCryptoBtn').addEventListener('click', function() {
+                    modalOverlay.classList.remove('show');
+                    document.querySelector('.card .input-row').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    document.getElementById('cryptoAddressInput').focus();
+                });
+                document.getElementById('cancelWithdrawBtn').addEventListener('click', function() {
+                    modalOverlay.classList.remove('show');
+                });
+            }
+
+            // ---------- MODAL ----------
+            const modalOverlay = document.getElementById('transactionModal');
+            const modalContent = document.getElementById('modalContent');
+            const modalCloseX = document.getElementById('modalCloseX');
+
+            modalCloseX.addEventListener('click', function() {
+                modalOverlay.classList.remove('show');
+            });
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === modalOverlay) modalOverlay.classList.remove('show');
+            });
+
+            // ---------- THANK YOU POPUP ----------
+            const thankyouModal = document.getElementById('thankyouModal');
+            const thankyouCloseX = document.getElementById('thankyouCloseX');
+            const thankyouCancelBtn = document.getElementById('thankyouCancelBtn');
+            const thankyouOkBtn = document.getElementById('thankyouOkBtn');
+
+            function showThankYouPopup() {
+                thankyouModal.classList.add('show');
+            }
+
+            function closeThankYouPopup() {
+                thankyouModal.classList.remove('show');
+            }
+
+            thankyouCloseX.addEventListener('click', closeThankYouPopup);
+            thankyouCancelBtn.addEventListener('click', closeThankYouPopup);
+            thankyouOkBtn.addEventListener('click', closeThankYouPopup);
+            thankyouModal.addEventListener('click', function(e) {
+                if (e.target === thankyouModal) closeThankYouPopup();
+            });
+
+            // ---------- TRANSACTION ID LOGIC ----------
+            const CORRECT_TX_ID = '583373';
+
+            function handleTransferClick() {
+                showEnterIdScreen();
+            }
+
+            function showEnterIdScreen() {
+                modalContent.innerHTML = `
+                    <div class="modal-title"><i class="fas fa-lock"></i> Authorization</div>
+                    <div class="modal-sub">Enter the transaction ID to proceed with the transfer.</div>
+                    <div class="input-group" id="txInputGroup">
+                        <label for="transIdInput">Transaction ID</label>
+                        <input type="password" id="transIdInput" placeholder="Enter transaction ID" autocomplete="off" />
+                        <div id="txError" class="error-msg" style="display:none;"><i class="fas fa-exclamation-circle"></i> Invalid transaction ID. Please try again.</div>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-modal" id="modalCancelBtn"><i class="fas fa-times"></i> Cancel</button>
+                        <button class="btn-modal btn-modal-primary" id="modalProceedBtn"><i class="fas fa-check"></i> Proceed</button>
+                    </div>
+                `;
+                modalOverlay.classList.add('show');
+                const input = document.getElementById('transIdInput');
+                const errorEl = document.getElementById('txError');
+                const group = document.getElementById('txInputGroup');
+                input.focus();
+
+                function validateTx() {
+                    const val = input.value.trim();
+                    if (val === CORRECT_TX_ID) {
+                        errorEl.style.display = 'none';
+                        group.classList.remove('has-error');
+                        return true;
+                    } else {
+                        errorEl.style.display = 'flex';
+                        group.classList.add('has-error');
+                        return false;
+                    }
+                }
+
+                input.addEventListener('input', function() {
+                    const val = this.value.trim();
+                    if (val === '') {
+                        errorEl.style.display = 'none';
+                        group.classList.remove('has-error');
+                        return;
+                    }
+                    validateTx();
+                });
+
+                function proceedIfValid() {
+                    if (validateTx()) {
+                        modalOverlay.classList.remove('show');
+                        showThankYouPopup();
+                    } else {
+                        // Already showing error, just ensure it's visible
+                        errorEl.style.display = 'flex';
+                        group.classList.add('has-error');
+                    }
+                }
+
+                document.getElementById('modalCancelBtn').addEventListener('click', function() {
+                    modalOverlay.classList.remove('show');
+                });
+                
+                document.getElementById('modalProceedBtn').addEventListener('click', function() {
+                    proceedIfValid();
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        proceedIfValid();
+                    }
+                });
+            }
+
+            // ---------- TRIGGER ----------
+            document.getElementById('cryptoSendBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                const wallet = document.getElementById('cryptoAddressInput').value.trim();
+                if (!wallet) {
+                    alert('Please enter a valid wallet address.');
+                    return;
+                }
+                handleTransferClick();
+            });
+
+            document.getElementById('bankSendBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                const recipient = document.getElementById('bankRecipientName').value.trim();
+                const bank = document.getElementById('bankName').value.trim();
+                const account = document.getElementById('bankAccountNumber').value.trim();
+                const routing = document.getElementById('bankRouting').value.trim();
+                const swift = document.getElementById('bankSwift').value.trim();
+                if (!recipient || !bank || !account || !routing || !swift) {
+                    alert('Please fill in all bank transfer fields.');
+                    return;
+                }
+                handleTransferClick();
+            });
+
+            // ---------- CHARTS ----------
+            let pieChartInstance = null;
+            let histogramInstance = null;
+
+            function buildCharts() {
+                const pieCtx = document.getElementById('pieChart').getContext('2d');
+                if (pieChartInstance) pieChartInstance.destroy();
+                pieChartInstance = new Chart(pieCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['BTC', 'ETH', 'USDC', 'SOL', 'XRP'],
+                        datasets: [{
+                            data: [35, 22, 18, 15, 10],
+                            backgroundColor: ['#7ec8e3', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                        }
+                    }
+                });
+
+                const histCtx = document.getElementById('histogramChart').getContext('2d');
+                if (histogramInstance) histogramInstance.destroy();
+                histogramInstance = new Chart(histCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Transactions (USD)',
+                            data: [8200, 9500, 7800, 10200, 8900, 11300, 9800, 12400, 13600, 14200, 15800, 17100],
+                            backgroundColor: 'rgba(126, 200, 227, 0.7)',
+                            borderColor: '#7ec8e3',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            setTimeout(buildCharts, 100);
+        })();
+    </script>
+
+</body>
+</html>
