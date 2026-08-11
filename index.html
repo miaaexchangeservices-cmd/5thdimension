@@ -189,10 +189,6 @@
       color: #1c2e38;
     }
 
-    .invest-btn {
-      display: none;
-    }
-
     /* cards */
     .grid-2, .grid-3, .grid-4 {
       display: grid;
@@ -764,7 +760,6 @@
       .nav-links a { font-size: 0.85rem; }
       .signin-btn { padding: 0.25rem 1rem; font-size: 0.85rem; }
       .hero h1 { font-size: 2rem; }
-      .invest-btn { padding: 0.6rem 2rem; font-size: 1rem; }
       .card { padding: 1.5rem 1rem; }
       .ceo-message { padding: 1.8rem 1rem; }
       .how-step { padding: 1.5rem 1rem; }
@@ -1161,34 +1156,7 @@
       .comic-popup .popup-close { font-size: 1.2rem; padding-left: 4px; }
     }
 
-    /* ---- LOGGED IN BANNER ---- */
-    .logged-in-banner {
-      background: #0f5e7a;
-      color: white;
-      padding: 0.8rem 1.5rem;
-      border-radius: 60px;
-      display: inline-flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin: 1rem auto 0;
-    }
-    .logged-in-banner a {
-      color: #ffd966;
-      text-decoration: none;
-      font-weight: 600;
-      padding: 0.2rem 1.2rem;
-      border: 2px solid #ffd966;
-      border-radius: 40px;
-      transition: 0.2s;
-    }
-    .logged-in-banner a:hover {
-      background: #ffd966;
-      color: #0f5e7a;
-    }
-
-    /* ---- DASHBOARD OVERRIDE ---- */
+    /* ---- DASHBOARD ---- */
     .dashboard-mode .navbar,
     .dashboard-mode .hero,
     .dashboard-mode .section,
@@ -1314,7 +1282,7 @@
         <div class="label">Total Return</div>
       </div>
     </div>
-    <a href="index.html" class="logout-btn" id="logoutBtn">🚪 Logout</a>
+    <a href="#" class="logout-btn" id="logoutBtn">🚪 Logout</a>
   </div>
 </div>
 
@@ -1558,7 +1526,7 @@
       <div class="contact-address-top">
         <i class="fas fa-map-pin"></i> 311 Elm St Suite 270, Cincinnati, OH 45202 USA
       </div>
-      <!-- INTEGRATED Splitforms FORM: action + hidden fields + fields -->
+      <!-- INTEGRATED Splitforms FORM -->
       <form action="https://splitforms.com/api/submit" method="POST">
         <input type="hidden" name="access_key" value="67fcde709de94316867be5fd880f520f">
         <input type="hidden" name="subject" value="New contact form submission">
@@ -1576,7 +1544,7 @@
           <textarea id="contact_message" name="message" placeholder="What's on your mind?" required></textarea>
         </div>
 
-        <!-- honeypot — bots fill every field -->
+        <!-- honeypot -->
         <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
 
         <div style="text-align: center;">
@@ -1684,32 +1652,29 @@
       { username: "pluviophilepulse", password: "@#$pluviophilepulse+82$&" }
     ];
 
-    // ---- CHECK IF USER IS LOGGED IN (via URL parameter) ----
-    const urlParams = new URLSearchParams(window.location.search);
-    const loggedInUser = urlParams.get('user');
-
+    // ---- DOM REFS ----
     const dashboardContent = document.getElementById('dashboardContent');
     const dashboardUsername = document.getElementById('dashboardUsername');
     const logoutBtn = document.getElementById('logoutBtn');
 
+    // ---- CHECK IF USER IS LOGGED IN (from sessionStorage) ----
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+
     if (loggedInUser) {
-      // Show dashboard, hide everything else
       document.body.classList.add('dashboard-mode');
       dashboardContent.style.display = 'block';
       dashboardUsername.textContent = 'Welcome, ' + loggedInUser + '!';
-      
-      // Update page title
       document.title = 'Dashboard - 5thdimension';
     }
 
     // ---- LOGOUT ----
     logoutBtn.addEventListener('click', function(e) {
       e.preventDefault();
-      // Remove the user parameter and reload
+      sessionStorage.removeItem('loggedInUser');
       window.location.href = window.location.pathname;
     });
 
-    // ---- DOM REFS FOR SIGNIN ----
+    // ---- SIGNIN POPUP REFS ----
     const overlay = document.getElementById('signinOverlay');
     const openBtn = document.getElementById('openSigninBtn');
     const closePopup = document.getElementById('closeSigninPopup');
@@ -1748,6 +1713,7 @@
       usernameInput.value = '';
       passwordInput.value = '';
     }
+
     function closeSignin() {
       overlay.classList.remove('active');
       usernameError.classList.remove('show');
@@ -1758,8 +1724,10 @@
       e.preventDefault();
       openSignin();
     });
+
     closePopup.addEventListener('click', closeSignin);
     closeModalBtn.addEventListener('click', closeSignin);
+
     overlay.addEventListener('click', function(e) {
       if (e.target === overlay) closeSignin();
     });
@@ -1767,10 +1735,12 @@
     usernameInput.addEventListener('input', function() {
       usernameError.classList.remove('show');
     });
+
     passwordInput.addEventListener('input', function() {
       passwordError.classList.remove('show');
     });
 
+    // ---- SIGNIN LOGIC (FIXED - uses sessionStorage) ----
     signinBtn.addEventListener('click', function() {
       const username = usernameInput.value.trim();
       const password = passwordInput.value.trim();
@@ -1804,8 +1774,11 @@
         return;
       }
 
-      // Redirect with username as parameter (no extra files needed)
-      window.location.href = window.location.pathname + '?user=' + encodeURIComponent(username);
+      // Store username in sessionStorage (not URL)
+      sessionStorage.setItem('loggedInUser', username);
+      
+      // Redirect to same page without URL parameters
+      window.location.href = window.location.pathname;
     });
 
     resetBtn.addEventListener('click', function() {
